@@ -1,0 +1,30 @@
+SELECT * FROM ((meals_hr
+INNER JOIN meals_category ON meals_category.meals_id = meals_hr.id)
+INNER JOIN category_hr ON meals_category.category_id = category_hr.id)
+
+____________________________________________________________________________
+
+
+SELECT * FROM ((meals_hr
+INNER JOIN meals_category ON meals_hr.id = meals_category.meals_id)
+INNER JOIN category_hr ON meals_category.category_id = category_hr.id) 
+
+__________________________________________________________________________________
+
+SELECT meals_hr.id, meals_hr.title, meals_hr.description, meals_hr.status, category_hr.title, category_hr.slug, tags_hr.title, tags_hr.slug
+FROM ((((meals_hr
+INNER JOIN meals_category ON meals_hr.id = meals_category.meals_id)
+INNER JOIN category_hr ON meals_category.category_id = category_hr.id)
+                
+INNER JOIN meals_tags ON meals_hr.id = meals_tags.meals_id)
+INNER JOIN tags_hr ON meals_tags.tags_id = tags_hr.id)
+
+
+
+
+____________________________________________________________-
+$sql = "SELECT  meals_" . $params["lang"] . ".title, " . $params["cti"] . "_" . $params["lang"] . ".id, " . $params["cti"] . "_" . $params["lang"] . ".title, " . $params["cti"] . "_" . $params["lang"] . ".slug
+FROM ((" .  $params["table"] . " INNER JOIN jela_svijeta.meals_" . $params["cti"] . " ON meals_" . $params["lang"] . ".id = meals_" . $params["cti"] . ".meals_id)
+INNER JOIN jela_svijeta." . $params["cti"] . "_" . $params["lang"] . "
+ON meals_" . $params["cti"] . "." . $params["cti"] . "_id = " . $params["cti"] . "_" . $params["lang"] . ".id)
+ WHERE meals_" . $params["lang"] . ".id = " . $params['id'] . "+1";

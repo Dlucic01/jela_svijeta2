@@ -35,13 +35,13 @@ class ValidInput
         }
 
         if ($argc <= 1) {
-            echo self::$error[] = "ERROR!!! Too few arguments." . PHP_EOL; // !!! NADOPUNITI !!! //
+            echo self::$error[] = "ERROR!!! Too few arguments." . PHP_EOL;
             return false;
         }
 
 
         if ($argc >= 4) {
-            echo self::$error[] = "ERROR!!! Too few arguments." . PHP_EOL; // !!! NADOPUNITI !!! //
+            echo self::$error[] = "ERROR!!! Too many arguments." . PHP_EOL;
             return false;
         }
 
@@ -281,21 +281,3 @@ if (isset($argc)) {
 } else {
     echo "ERROR!!! Invalide number of arguments. Expected 1 argument named (category, tags, ingredients, meals)\n\n";
 }
-#$sql_upload = new Upload($sql_conn);
-#$new_category = new Category($sql_conn, $sql_upload);
-#echo ("<pre>" . print_r($sql_upload, true) . "</pre>");
-
-/*
-if ($sql_conn = new SQLConnection) {
-
-    if ($upload = new Upload($sql_conn)) {
-
-        if ($new_category = new Category($sql_conn, $upload)); {
-            echo "cool";
-        }
-        echo "cool 2";
-    }
-    echo "cool 3";
-    echo ("<pre>" . print_r($upload, true) . "</pre>");
-}
-*/

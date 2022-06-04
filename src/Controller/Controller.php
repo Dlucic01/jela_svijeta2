@@ -432,13 +432,6 @@ class SearchEngine
         $searchParams = $this->getSearchParams();
 
 
-
-
-        echo $_SERVER['QUERY_STRING'];
-
-        echo "\n------------------------------\n\n\n\n\n";
-        #print_r($_GET);
-        #echo $count;
         for ($i = 1; $i < $this->getParameterCount($params); $i++) {
             if ($count == 1) {
                 $response = $this->mealsController->getMealData($_GET);

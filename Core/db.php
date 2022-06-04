@@ -159,16 +159,16 @@ class Upload
             }
 
             if ($column_value == "description") {
-                $params["param"] = $params["description"];  #self::slugMaker($params["param"]);
+                $params["param"] = $params["description"];
             }
             if ($column_value == "category_id") {
-                $params["param"] = $params["cti_id"];  #self::slugMaker($params["param"]);
+                $params["param"] = $params["cti_id"];
             }
             if ($column_value == "tags_id") {
-                $params["param"] = $params["cti_id"];  #self::slugMaker($params["param"]);
+                $params["param"] = $params["cti_id"];
             }
             if ($column_value == "ingredients_id") {
-                $params["param"] = $params["cti_id"];  #self::slugMaker($params["param"]);
+                $params["param"] = $params["cti_id"];
             }
 
 
@@ -179,170 +179,3 @@ class Upload
         $pdo = null;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #            if ($column_value == "slug") {
-    #                $params["param"] = self::slugMaker($params["param"]);
-    #            }
-    #
-
-
-
-    /*public function insertM(array $params)
-    {
-
-
-        # echo ("<pre>" . print_r($params, true) . "</pre>");
-
-        $pdo = $this->dbConnection->connect();
-
-        $sql = "INSERT INTO " . $params["table"] . " (";
-
-
-        // Create column names
-
-        foreach ($params["column"] as $columns) {
-            $sql .= $columns . ", ";
-        }
-        $sql = rtrim($sql, ", ");
-        $sql .= ") VALUES (";
-
-        // Create sql column values
-        foreach ($params["column"] as $bind_values) {
-            $sql .= ":" . $bind_values . ", ";
-        }
-        $sql = rtrim($sql, ", ");
-        $sql .= ")";
-
-
-        echo $sql;
-
-        $stmt = $pdo->prepare($sql);
-
-        foreach ($params["column"] as $column_value) {
-
-            // Upitnik - Potencijalno greška (ISP)
-            if ($column_value == "title") {
-                $params["param"] = $params["title"];  #self::slugMaker($params["param"]);
-            }
-            if ($column_value == "description") {
-                $params["param"] = $params["description"];  #self::slugMaker($params["param"]);
-            }
-            if ($column_value == "category") {
-                $params["param"] = $params["category"];  #self::slugMaker($params["param"]);
-            }
-            if ($column_value == "ingredients") {
-                $params["param"] = $params["ingredients"];  #self::slugMaker($params["param"]);
-            }
-            if ($column_value == "tags") {
-                $params["param"] = $params["tags"];  #self::slugMaker($params["param"]);
-            }
-
-
-            $stmt->bindValue($column_value, $params["param"]);
-        }
-
-
-
-        $stmt->execute();
-        $pdo = null;
-
-
-
-        #            if ($column_value == "slug") {
-        #                $params["param"] = self::slugMaker($params["param"]);
-        #            }
-        #
-    }
-    */
-
-
-
-
-/*
-$lang_counter = count(Lang::$faker_lang);
-echo $lang_counter;
-
-
-
-$db = new SQLConnection;
-$user = new Upload($db);
-
-for ($k = 0; $k < $lang_counter; $k++) {
-    $faker_lang = Lang::$faker_lang[$k];
-    $faker = Faker\Factory::create($faker_lang);
-
-    //Generate Faker Titles
-    $faker_category = $faker->streetName;
-    $faker_tags = $faker->company;
-    $faker_ingredients = $faker->name;
-
-    $faker_cat[] = $faker_category;
-    $faker_tag[] = $faker_tags;
-    $faker_ing[] = $faker_ingredients;
-
-    $faker_val = [
-        0 => $faker_cat,
-        1 => $faker_tag,
-        2 => $faker_ing
-    ];
-
-
-    // Generate Faker Slugs
-    if ($k == 0) {
-        $slug = [
-            0 => Upload::slugMaker($faker_cat[0]),
-            1 => Upload::slugMaker($faker_tag[0]),
-            2 => Upload::slugMaker($faker_ing[0])
-
-        ];
-    }
-}
-
-# $faker = Faker\Factory::create($faker_lang[$k]);
-for ($i = 0; $i < $lang_counter; $i++) {
-    for ($j = 0; $j < $lang_counter; $j++) {
-
-        $user->insert(array(
-            "table" => Table::$value[$i][$j],
-
-            "column" => CTI::$value,
-            "param" => $faker_val[$i][$j],
-            "slug" => $slug[$i]
-        ));
-    }
-}
-////////////////////////////////////////////
-
-/*
-$faker_meal = $faker->company;
-$faker_meal_desc = $faker->paragraph(3, true);
-
-
-$meal_values = [
-    "title" => $faker_meal,
-    "description" => $faker_meal_desc,
-    "category" => $slug[0],
-    "ingredients" => $slug[1],
-    "tags" => $slug[2]
-];
-
-
-echo ("<pre>" . print_r($meal_values, true) . "</pre>");
-*/

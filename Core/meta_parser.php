@@ -56,7 +56,7 @@ class MetaParser
         if ($page >= $totalPages && $totalPages == 1) {
             $links = [
                 'links' => [
-                    'previous' => $linkNull, #$link . ($page - 1),
+                    'previous' => $linkNull,
                     'self' => $fullLink,
                     'next' => $linkNull,
                 ]
@@ -90,7 +90,7 @@ class MetaParser
                 'links' => [
                     'previous' => $linkNull,
                     'self' => $link . ($page = 1),
-                    'next' => $linkNull,  #$link . ($page + 1),
+                    'next' => $linkNull,
                 ]
             ];
         } else {

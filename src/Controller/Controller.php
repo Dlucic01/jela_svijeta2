@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
+use App\Model\MetaData;
 use Core\SQLConnection;
 use App\Model\Model;
-use Core\CTIInsert;
 use Core\Languages;
+use Core\MetaParser;
 
 //require_once '../../Core/db.php';
-require_once '../Model/Model.php';
+require '../Model/Model.php';
 require '../../Core/meta_parser.php';
 header('Content-Type: application/json');
 
@@ -61,15 +62,6 @@ class UrlParameterController
     }
 }
 
-class Parser
-{
-    public static function parseMetaData()
-    {
-        $val = parser($_GET);
-
-        return $val;
-    }
-}
 
 
 class MealsController
@@ -106,13 +98,8 @@ class MealsController
 
         $response = $meals->returnMeals($values);
 
-        $response = ['data' => $response];
-        $val = Parser::parseMetaData();
-        $metaArray = array_merge($val, $response);
 
-        return $metaArray;
-
-        echo json_encode($metaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
+        return $response;
     }
 }
 
@@ -156,55 +143,6 @@ class TagsControl
 
         return $response;
     }
-
-    public function getTags($id, $mealID)
-    {
-
-
-        $params = $_GET;
-
-        if (!UrlParameterController::areValidParams()) {
-            header("HTTP/1.0 404 Not Found");
-            die("Not a valid request");
-        }
-
-        $language = ValidUrl::validate($params['lang']);
-        $meals = $this->model;
-
-        $response = $meals->selectTags([
-            'table' => "jela_svijeta.meals_" . $language,
-            'lang' => $language,
-            'cti' => "tags",
-            'id' => $id,
-            'mealID' => $mealID
-        ]);
-        $response = ["Tags" => $response];
-
-        return $response;
-    }
-
-
-
-    public function getMealsWithTags()
-    {
-        $params = $_GET;
-        $meals = $this->getTMeals($params['tags']);
-        $allCategory = array();
-        $allCombine = [];
-        foreach ($meals["meals"] as $meal) {
-            # echo $meal['id'];
-            $category = $this->getTags($params['tags'], $meal['id']);
-
-            $allCategory[] = $category;
-            $combine = array_merge($meal, $category);
-            $allCombine[] = $combine;
-        }
-
-        #echo $combine;
-        # echo json_encode($allCombine, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-        echo json_encode($meals["meals"], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-        # echo json_encode($category, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-    }
 }
 
 class CategoryController
@@ -226,7 +164,6 @@ class CategoryController
     {
 
 
-        #$params = $_GET;
 
         if (!UrlParameterController::areValidParams()) {
             header("HTTP/1.0 404 Not Found");
@@ -242,8 +179,6 @@ class CategoryController
                 'category_table' => $params['category'],
                 'id' => "IS NULL"
             ]);
-
-            #    $response = ["meals" => $response];
         }
 
         if ($_GET['category'] == "!null") {
@@ -255,8 +190,6 @@ class CategoryController
                 'cti' => "category",
                 'id' => "IS NOT NULL"
             ]);
-
-            #     $response = ["meals" => $response];
         }
 
         $response = $meals->returnCMeals([
@@ -322,13 +255,11 @@ class WithController
             die("Not a valid request");
         }
 
-        $model = $this->model;
         $params = $_GET;
 
         $api = [];
 
 
-        #$meal = $this->mealData->getMealData();
 
 
         $with_params[] = explode(',', $params['with']);
@@ -366,15 +297,9 @@ class WithController
 
             $response = array_merge($meals_id[$i], $with);
             $api[] = $response;
-            # echo "\n-----------------------------------------------------\n";
-            # echo ("<pre>" . print_r($with, true) . "</pre>");
-
-            #echo "\n-----------------------------------------------------\n";
         }
 
         return $api;
-
-        # echo ("<pre>" . print_r($api, true) . "</pre>");
     }
 }
 
@@ -464,6 +389,7 @@ class SearchEngine
 
     public function __construct(Model $model)
     {
+        $this->model = $model;
         $this->mealsController = new MealsController($model);
         $this->categoryController = new CategoryController($model);
 
@@ -472,7 +398,6 @@ class SearchEngine
         $this->categoryTagsController = new CategoryTagsController($model);
     }
 
-    //Searches trough searchParams array and return count of elements located in url
     public function getParameterCount(array $params)
     {
         foreach ($params as $key => $val) {
@@ -483,7 +408,6 @@ class SearchEngine
         return $this->count;
     }
 
-    //loop trogh get parameters, if any of them is in searchParams array, store it
     public function getSearchParams()
     {
         $paramsHolder = [];
@@ -494,7 +418,6 @@ class SearchEngine
             }
         }
 
-        //unset lang because it is required
         for ($i = 0; $i < count($paramsHolder); $i++) {
             if ($paramsHolder[$i] == 'lang') {
                 unset($paramsHolder[$i]);
@@ -503,62 +426,99 @@ class SearchEngine
         return $paramsHolder;
     }
 
-    //Main part of the application, runs all other methods depending on the url parameters
     public function returnResponse(array $params)
     {
         $count = $this->getParameterCount($params);
         $searchParams = $this->getSearchParams();
 
-        #print_r($searchParams);
 
-        #print_r($searchParams);
+
+
+        echo $_SERVER['QUERY_STRING'];
+
+        echo "\n------------------------------\n\n\n\n\n";
+        #print_r($_GET);
         #echo $count;
         for ($i = 1; $i < $this->getParameterCount($params); $i++) {
             if ($count == 1) {
                 $response = $this->mealsController->getMealData($_GET);
+                $meta = MetaParser::parser($this->model->mealsRowCount());
+                $links = MetaParser::getLinks($this->model->mealsRowCount());
                 $response = ['data' => $response];
+                $response = array_merge($meta, $response, $links);
+
                 return $response;
             }
 
             if ($count == 2 && $searchParams[$i] == "tags") {
                 $response = $this->tagsController->getTMeals($_GET);
+                $meta = MetaParser::parser($this->model->tagsRowCount());
+                $links = MetaParser::getLinks($this->model->tagsRowCount());
                 $response = ['data' => $response];
+                $response = array_merge($meta, $response);
+
                 return $response;
             }
 
             if ($count == 2 && $searchParams[$i] == "category") {
+
                 $response = $this->categoryController->getCMeals($_GET);
+                $meta = MetaParser::parser($this->model->categoryRowCount());
+                $links = MetaParser::getLinks($this->model->categoryRowCount());
                 $response = ['data' => $response];
+
+                $response = array_merge($meta, $response, $links);
+
                 return $response;
             }
 
             if ($count == 2 && $searchParams[$i] == "with") {
                 $response = $this->withController->getWith($_GET, $this->mealsController->getMealData($_GET));
+                $meta = MetaParser::parser($this->model->mealsRowCount());
+                $links = MetaParser::getLinks($this->model->mealsRowCount());
                 $response = ['data' => $response];
+
+                $response = array_merge($meta, $response, $links);
+
                 return $response;
             }
 
             if ($count == 3 && isset($params['category']) && isset($params['tags'])) {
                 $response = $this->categoryTagsController->getCategoryTags($_GET);
-                $response = ['data' => $response];
+                $meta = MetaParser::parser($this->model->categoryTagsCount());
+                $links = MetaParser::getLinks($this->model->categoryTagsCount());
+
+                $response = array_merge($meta, $response, $links);
                 return $response;
             }
 
             if ($count == 3 && isset($params['category']) && isset($params['with'])) {
                 $response = $this->withController->getWith($_GET, $this->categoryController->getCMeals($_GET));
+                $meta = MetaParser::parser($this->model->categoryRowCount());
+                $links = MetaParser::getLinks($this->model->categoryRowCount());
                 $response = ['data' => $response];
+
+                $response = array_merge($meta, $response, $links);
                 return $response;
             }
 
             if ($count == 3 && isset($params['tags']) && isset($params['with'])) {
                 $response = $this->withController->getWith($_GET, $this->tagsController->getTMeals($_GET));
+                $meta = MetaParser::parser($this->model->tagsRowCount());
+                $links = MetaParser::getLinks($this->model->tagsRowCount());
                 $response = ['data' => $response];
+
+                $response = array_merge($meta, $response, $links);
                 return $response;
             }
 
             if ($count == 4) {
                 $response = $this->withController->getWith($_GET, $this->categoryTagsController->getCategoryTags($_GET));
+                $meta = MetaParser::parser($this->model->categoryTagsCount());
+                $links = MetaParser::getLinks($this->model->categoryTagsCount());
                 $response = ['data' => $response];
+
+                $response = array_merge($meta, $response, $links);
                 return $response;
             }
 
@@ -570,167 +530,5 @@ $db = new SQLConnection;
 $model = new Model($db);
 
 $searchEngine = new SearchEngine($model);
-#$val = $searchEngine->getParemeterCount($_GET);
-#print_r($val);
-#$val = $searchEngine->getSingleSearchParam();
-#echo $val;
 $response = $searchEngine->returnResponse($_GET);
-echo json_encode($response, JSON_PRETTY_PRINT);
-
-
-/*
-$db = new SQLConnection;
-$model = new Model($db);
-$mealControl = new MealsData($model);
-$withControl = new CTIControl($model);
-$perPageControl = new PerPage($model);
-$withTags = new TagsControl($model);
-
-
-if (isset($_GET['lang']) && !isset($_GET['with'])) {
-
-   $allMeals = $mealControl->getMealData();
-
-    echo json_encode($allMeals, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-}
-
-if (isset($_GET['category'])) {
-
-    $allCategory = $withControl->getCMeals($_GET);
-
-    echo json_encode($allCategory, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-}
-
-if (isset($_GET['tags'])) {
-
-
-    $allCategory = $withTags->getTMeals($_GET);
-    echo json_encode($allCategory, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-}
-
-$api_per = $perPageControl->perPage();
-
-$api_response = array();
-if (isset($_GET['with'])) {
-    for ($i = 0; $i < $api_per; $i++) {
-        $api_response[] = $api_with;
-    }
-    echo json_encode($api_response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-
-    die();
-}
-
-
-if (!isset($_GET['with'])) {
-
-    //$allMeals = $mealControl->getMealData();
-    $allCategory = $withControl->getCategory();
-
-    echo json_encode($allCategory, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS);
-}
-
-if (isset($_GET['tags'])) {
-    $api = $withControl->getMealsTags();
-
-    echo json_encode($api, JSON_PRETTY_PRINT);
-}
-
-if (isset($_GET['category'])) {
-
-    $api = $withControl->combineMealsCategory();
-
-    echo json_encode($api, JSON_PRETTY_PRINT);
-
-    #  foreach ($_GET['category'] as $data) {
-    echo "\n______________________________________";
-
-    $api = $withControl->getMealsCategory();
-
-    echo json_encode($api, JSON_PRETTY_PRINT);
-
-    #echo "______________________________";
-    #echo ("<pre>" . print_r($api["data"][1], true) . "</pre>");
-    # }
-}
-
-
-
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-#if (!isset($_GET['with'])) {
-
-#}
-
-#if (isset($_GET['with'])) {
-
-#$meal = $controller->getMealData();
-    #for ($i = 0; $i < count($meal['data']); $i++) {
-
-        #   if ($i == 0) {
-        #       $api = $controller->getWithParams(0);
-        #   }
-
-        #$api = $controller->getWithParams($i);
-    #}
-#}
-
-
-    #$tags = $controller->getCTI($cti_loop[1]);
-
-    #$ingredients = $controller->getCTI($cti_loop[2]);
-
-
-
-#echo "\n-------------------------------------\n";
-/*
-
-    public function getCTI($values, int $id)
-    {
-
-
-        $params = $_GET;
-
-        if (!UrlParameterController::areValidParams()) {
-            header("HTTP/1.0 404 Not Found");
-            die("Not a valid request");
-        }
-
-        $language = ValidUrl::validate($params['lang']);
-        $meals = $this->model;
-
-        $response = $meals->returnCTI([
-            'table' => "jela_svijeta.meals_" . $language,
-            'lang' => $language,
-            'id' => $id,
-            'cti' => $values,
-            'g_tag' => 3
-        ]);
-        $response = [$values => $response];
-
-        return $response;
-    }
-
-
-
-
-
-
-#############################################
-
-
-
-*/
+echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

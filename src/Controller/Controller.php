@@ -602,5 +602,11 @@ $db = new SQLConnection;
 $model = new Model($db);
 
 $searchEngine = new SearchEngine($model);
+
+$fullLink = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+if (!filter_var($fullLink, FILTER_VALIDATE_URL)) {
+    echo "Error";
+    return;
+}
 $response = $searchEngine->returnResponse($_GET);
 echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);

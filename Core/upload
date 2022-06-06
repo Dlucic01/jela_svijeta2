@@ -47,7 +47,7 @@ class ValidInput
         }
 
 
-        if ($argc > 4) {
+        if ($argc > 5) {
             echo self::$error[] = "ERROR!!! Too many arguments." . $usageMsg;
             return false;
         }

@@ -29,8 +29,14 @@ class ValidInput
 
         $tableCount = count($validTables);
 
+        $usageMsg = "\n\n Create new fake table: " . '\n"' .
+            "php upload.php [meals][category][tags][ingredients]" . '"\n\n' .
+            "Create new join: " . '\n"' .
+            "php upload.php [meals_category][meals_tags][meals_ingredients] + [meal_id] + [C/T/I_id]\n\n";
+
+
         if ($argc == 1) {
-            echo self::$error[] = "Usage: ./upload |table_name|" . PHP_EOL;
+            echo self::$error[] = "Usage: php upload.php |table_name|" . PHP_EOL;
             return false;
         }
 
@@ -58,6 +64,96 @@ class ValidInput
     }
 }
 
+class Upload
+{
+    private $dbConnection;
+
+    public function __construct(DBConnInterface $dbConnInterface)
+    {
+        $this->dbConnection = $dbConnInterface;
+    }
+
+
+    /**
+     *@method slugMaker creates a slug for Categories, Tags and Ingredients
+     */
+
+
+    public static function slugMaker($slug)
+    {
+        $slug = str_replace(" ", "-", $slug);
+        $slug = strtolower($slug);
+        return $slug;
+    }
+
+
+
+
+
+    /**
+     *@method insert generates mysql statement and inserts values into database
+     */
+
+    public function insert(array $params)
+    {
+
+
+
+        $pdo = $this->dbConnection->connect();
+
+        $sql = "INSERT INTO " . $params["table"] . " (";
+
+
+        # Create column names
+
+        foreach ($params["column"] as $columns) {
+            $sql .= $columns . ", ";
+        }
+        $sql = rtrim($sql, ", ");
+        $sql .= ") VALUES (";
+
+        # Create sql column values
+        foreach ($params["column"] as $bind_values) {
+            $sql .= ":" . $bind_values . ", ";
+        }
+        $sql = rtrim($sql, ", ");
+        $sql .= ")";
+
+
+        echo $sql . "\n\n\n";
+
+        $stmt = $pdo->prepare($sql);
+
+        # insert  CTI into sql
+        foreach ($params["column"] as $column_value) {
+
+
+            if ($column_value == "slug") {
+                $params["param"] = $params["slug"];
+            }
+
+            if ($column_value == "description") {
+                $params["param"] = $params["description"];
+            }
+            if ($column_value == "category_id") {
+                $params["param"] = $params["cti_id"];
+            }
+            if ($column_value == "tags_id") {
+                $params["param"] = $params["cti_id"];
+            }
+            if ($column_value == "ingredients_id") {
+                $params["param"] = $params["cti_id"];
+            }
+
+
+
+            $stmt->bindValue($column_value, $params["param"]);
+        }
+        $stmt->execute();
+        $pdo = null;
+    }
+}
+
 
 class CTIInsert
 {
@@ -71,7 +167,15 @@ class CTIInsert
     }
 
 
-    function insertCategory(array $params)
+
+    /**
+     *
+     *@method inserts fake Category, Tags or Ingredients
+     *
+     */
+
+
+    function insertCTI(array $params)
     {
         if (ValidInput::validateValues() == true) {
             $lang_counter = count(Lang::$fakerLang);
@@ -96,18 +200,8 @@ class CTIInsert
 
                 $faker_cat[] = $faker_category;
 
-                echo "!!!!!!!!!!!!!!!!!!!!\n";
-                echo ("<pre>" . print_r($faker_category, true) . "</pre>");
 
-                echo "!!!!!!!!!!!!!!!!!!!!\n";
-
-
-                echo "-----------------------\n";
-                echo ("<pre>" . print_r($faker_cat, true) . "</pre>");
-
-                echo "-----------------------\n";
-
-                // Generate Faker Slugs
+                # Generate Faker Slugs
                 if ($i == 0) {
                     $slug = [
                         0 => Upload::slugMaker($faker_cat[0]),
@@ -119,7 +213,6 @@ class CTIInsert
 
 
 
-            # $faker = Faker\Factory::create($fakerLang[$k]);
             for ($j = 0; $j < $lang_counter; $j++) {
 
                 $this->upload->insert(array(
@@ -140,13 +233,16 @@ class Meals
     protected $upload;
     protected $select_category;
 
-    public function __construct(DBConnInterface $db, Upload $upload) //, CTISelect $select_category)
+    public function __construct(DBConnInterface $db, Upload $upload)
     {
         $this->db = $db;
         $this->upload = $upload;
-        #$this->select_category = $select_category;
     }
 
+
+    /**
+     *@method insertMeals Inserts fake meals into database
+     */
 
     function insertMeals()
     {
@@ -201,6 +297,13 @@ class InsertJoin
         $this->dbConnInterface = $dBConnInterface;
         $this->upload = $upload;
     }
+
+
+
+
+    /**
+     *@method insertValues Inputs join int values to database
+     */
 
     public function insertValues(array $params)
     {
@@ -260,15 +363,15 @@ if (isset($argc)) {
 
     if ($argv[1] == "category") {
         $cti_v = new CTIInsert($sql_conn, $upload_v);
-        $cti_v->insertCategory($argv);
+        $cti_v->insertCTI($argv);
     }
     if ($argv[1] == "tags") {
         $cti_v = new CTIInsert($sql_conn, $upload_v);
-        $cti_v->insertCategory($argv);
+        $cti_v->insertCTI($argv);
     }
     if ($argv[1] == "ingredients") {
         $cti_v = new CTIInsert($sql_conn, $upload_v);
-        $cti_v->insertCategory($argv);
+        $cti_v->insertCTI($argv);
     }
     if ($argv[1] == "meals") {
         $cti_v = new Meals($sql_conn, $upload_v);

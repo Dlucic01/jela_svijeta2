@@ -2,8 +2,6 @@
 
 namespace Core;
 
-use App\Model\Model;
-use Core\SQLConnection;
 use App\Controller\ValidUrl;
 
 require_once 'db.php';
@@ -11,17 +9,23 @@ require_once 'db.php';
 
 class MetaParser
 {
+
+    /**
+     *@method parser Creates Metadata based on total items and items per page
+     *
+     **/
+
     public static function parser(int $totalItems)
     {
         $totalItems = (string)($totalItems);
         $totalItems = ValidUrl::validate($totalItems);
 
-        $page = isset($_GET['page']) ? ValidUrl::validate($_GET['page']) : 1;
+        $page = isset($_GET['page']) ? ValidUrl::validate($_GET['page']) :  "1";
 
         $perPage = isset($_GET['per_page']) ? ValidUrl::validate($_GET['per_page']) : $totalItems;
 
         $totalPages = ceil($totalItems / $perPage);
-        //Page can't be negative
+
         if ($page < 1) {
             $page = 1;
         }
@@ -37,6 +41,15 @@ class MetaParser
         return $metaData;
     }
 
+
+
+
+    /**
+     *@method getLinks Generates
+     *
+     **/
+
+
     public static function getLinks(int $totalItems)
     {
         $totalItems = (string) ($totalItems);
@@ -50,7 +63,7 @@ class MetaParser
         $fullLink = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $link = "http://$_SERVER[HTTP_HOST]" . $linksArr[0][0] . $linksArr[0][1] . "&page=";
 
-        //Generating links
+        #Generating links
         $linkNull = "null";
 
         if ($page >= $totalPages && $totalPages == 1) {

@@ -14,6 +14,7 @@ meta_parser.php - generates Metadata
 src directory contains Model and Controller
 
 <hr>
+<br>
 
 <h3>Basic Usage</h3>
 
@@ -31,5 +32,7 @@ src directory contains Model and Controller
         ./upload join meals_category "meal_id" "category_id"
     
 <p>For other joins replace all mentions of category in line above with "tags" or "ingredients"</p>
+
+<hr>
 
 <p>diff_time parameter is not supported</p>

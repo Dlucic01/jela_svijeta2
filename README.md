@@ -1,6 +1,7 @@
 # jela_svijeta
 
 
+
 <h3>Directory Structure</h3>
 
 Core directory holds all core files such as:
@@ -14,15 +15,21 @@ src directory contains Model and Controller
 
 <hr>
 
-<h3>Upload</h3>
+<h3>Basic Usage</h3>
 
-To upload a new fake Meal, Category, Tag or Ingredient:
-use php upload.php / or chmod u+x upload
+<p>In Core/db.php please fulfill mysql username and password</p>
 
-and add meals, category, tags, ingredients like:
-    ./upload meals
+<hr>
+
+<p>To upload a new fake Meal, Category, Tag or Ingredient:</p>
+<p>use php upload.php / or chmod u+x upload</p>
+
+<p>and add meals, category, tags, ingredients like:</p>
+        ./upload meals
     
-To join a Meal with a Category:
-    ./upload join meals_category "meal_id" "category_id"
+<p>To join a Meal with a Category:</p>
+        ./upload join meals_category "meal_id" "category_id"
     
-For other joins replace all mentions of category in line above with "tags" or "ingredients"
+<p>For other joins replace all mentions of category in line above with "tags" or "ingredients"</p>
+
+<p>diff_time parameter is not supported</p>

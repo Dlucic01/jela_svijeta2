@@ -30,7 +30,7 @@ class ValidInput
 
         $tableCount = count($validTables);
 
-        $usageMsg = "\n\nCreate new fake table: \n" . '"' .
+        $usageMsg = "\n\nCreate new fake value: \n" . '"' .
             "php upload.php [meals][category][tags][ingredients]" . '"' .
             "\n\nCreate new join: \n" . '"' .
             "php upload.php [meals_category][meals_tags][meals_ingredients] + [meal_id] + [C/T/I_id]\n\n";
@@ -47,7 +47,7 @@ class ValidInput
         }
 
 
-        if ($argc >  5) {
+        if ($argc > 4) {
             echo self::$error[] = "ERROR!!! Too many arguments." . $usageMsg;
             return false;
         }
@@ -387,5 +387,5 @@ if (ValidInput::validateValues() == true) {
     }
 } else {
 
-    echo "ERROR!!! Invalide number of arguments. Expected 1 argument named (category, tags, ingredients, meals)\n\n";
+    echo "ERROR!!!\n\n";
 }

@@ -7,7 +7,6 @@ use App\Model\Model;
 use Core\Languages;
 use Core\MetaParser;
 
-//require_once '../../Core/db.php';
 require '../Model/Model.php';
 require '../../Core/meta_parser.php';
 header('Content-Type: application/json');
@@ -252,9 +251,7 @@ class WithController
 
 
     /**
-     *
      *@method setWith Can generate Categories, Tags, Ingredients of a required meal
-     *
      */
 
 

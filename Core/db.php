@@ -114,7 +114,6 @@ class Languages
 class Lang
 {
 
-    # Supported languages for faker
 
     /**
      *@var array $fakerLang Holds all currently supported languages

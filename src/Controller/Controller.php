@@ -605,7 +605,7 @@ $searchEngine = new SearchEngine($model);
 
 $fullLink = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 if (!filter_var($fullLink, FILTER_VALIDATE_URL)) {
-    echo "Error";
+    echo "ERROR!";
     return;
 }
 $response = $searchEngine->returnResponse($_GET);

@@ -34,5 +34,6 @@ src directory contains Model and Controller
 <p>For other joins replace all mentions of category in line above with "tags" or "ingredients"</p>
 
 <hr>
+<br>
 
 <p>diff_time parameter is not supported</p>

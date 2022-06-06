@@ -23,7 +23,7 @@ src directory contains Model and Controller
 <hr>
 
 <p>To upload a new fake Meal, Category, Tag or Ingredient:</p>
-<p>use php upload.php / or chmod u+x upload</p>
+<p>use "php upload.php" or "chmod u+x upload"</p>
 
 <p>and add meals, category, tags, ingredients like:</p>
 
